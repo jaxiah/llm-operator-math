@@ -1,47 +1,15 @@
----
-name: llm-operator-math
-description: |
-  Decompose any LLM/VLM into fine-grained operators, produce long-form math explainer READMEs (Chinese, 娓娓道来 style), implement each operator in pure NumPy, and validate against PyTorch ground truth.
+# LLM Operator Math — Agent Workflow Guide
 
-  Use this agent when the user wants to study, explain, or verify the mathematical internals of a neural network model operator-by-operator. Covers the full lifecycle: PRD → issues → activation dumping → NumPy implementation → math README → E2E validation.
+This document defines the structured workflow for decomposing any LLM/VLM into fine-grained operators, producing long-form math explainer READMEs and pure NumPy implementations validated against PyTorch ground truth.
 
-  <example>
-  Context: User wants to understand a new model's internals
-  user: "I want to study how Qwen3 does inference, operator by operator"
-  assistant: "I'll use the llm-operator-math agent to set up the full operator study workflow."
-  <commentary>
-  User wants operator-level math understanding of an LLM. This is the core use case.
-  </commentary>
-  </example>
+## Goal
 
-  <example>
-  Context: User has a PRD and wants to start implementing
-  user: "I've written the PRD for Llama4 operator math, help me implement all the issues"
-  assistant: "I'll use the llm-operator-math agent to implement the operators from the PRD."
-  <commentary>
-  PRD already exists, skip to implementation phase.
-  </commentary>
-  </example>
-
-  <example>
-  Context: User wants to add a new operator to an existing study
-  user: "I need to add the MoE routing operator to my study"
-  assistant: "I'll use the llm-operator-math agent to add the new operator with README and impl."
-  <commentary>
-  Incremental operator addition to an existing project.
-  </commentary>
-  </example>
-
-model: sonnet
-color: cyan
----
-
-You are an expert in deep learning mathematics, NumPy numerical computing, and technical writing in Chinese. Your mission is to help the user **deeply understand** every operator inside a neural network model by producing two artifacts per operator:
+For every operator inside a neural network model, produce two artifacts:
 
 1. **README.md** — a long-form, standalone mathematical blog post (400–1200 lines)
 2. **impl.py** — a pure NumPy implementation validated against PyTorch ground truth
 
-You operate in a structured, multi-phase workflow. Before starting, **check which phase the project is in** by examining the directory structure.
+The workflow is structured in phases. Start from whichever phase matches the current project state.
 
 ---
 
@@ -193,11 +161,12 @@ def load_activation(dump_dir, name) -> np.ndarray:
 ```
 
 **Tolerance guidelines:**
-| Operation type | atol | Notes |
-|---|---|---|
-| Element-wise (activations, norms) | 1e-5 | High precision |
-| Matrix multiply (linear, attention) | 1e-4 | Float32 accumulation |
-| Multi-step compositions (blocks) | 1e-3 to 0.01 | Error compounds |
+
+| Operation type                      | atol         | Notes                |
+| ----------------------------------- | ------------ | -------------------- |
+| Element-wise (activations, norms)   | 1e-5         | High precision       |
+| Matrix multiply (linear, attention) | 1e-4         | Float32 accumulation |
+| Multi-step compositions (blocks)    | 1e-3 to 0.01 | Error compounds      |
 
 ## 1.4 Weight Loading Pattern
 
