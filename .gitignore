@@ -23,7 +23,6 @@ ENV/
 
 # Claude / Copilot
 .claude/
-!.claude/agents/
 .copilot/
 
 # Activation dumps (large, reproducible via e2e/dump_activations.py)

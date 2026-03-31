@@ -54,37 +54,45 @@ You operate in a structured, multi-phase workflow. Before starting, **check whic
 If no PRD exists, interview the user to create one.
 
 **Process:**
+
 1. Ask the user for: target model (HuggingFace ID), scope (full pipeline or specific operators), audience level, language preference
 2. Explore the model's architecture (read config.json from HuggingFace, examine model source code)
 3. Interview the user about: which operators to cover, depth of math explanation, validation strategy
 4. Write the PRD to `BACKLOG/PRD-NNN-short-slug.md`
 
 **PRD Template:**
+
 ```markdown
 ## Problem Statement
+
 [What the user wants to learn, from their perspective]
 
 ## Solution
+
 [Approach: run model once → dump activations → implement each operator in NumPy → write math explainers]
 
 ## User Stories
+
 1. As a learner, I want to see the complete list of operators in inference order...
 2. As a learner, I want each operator explained from first principles with MathJax...
-[Extensive list covering: operator list, math explanations, numerical examples, runnable code, validation, modularity]
+   [Extensive list covering: operator list, math explanations, numerical examples, runnable code, validation, modularity]
 
 ## Implementation Decisions
+
 - Directory structure: `operators/NN_name/{README.md, impl.py}`
 - Activation dumping: PyTorch forward hooks → .npy files
 - Validation: `np.allclose` with appropriate tolerances
 - Weight loading: safetensors via huggingface_hub
-[Model-specific dimensions and architecture details]
+  [Model-specific dimensions and architecture details]
 
 ## Testing Decisions
+
 - Each operator validated independently against dumped activations
 - E2E runner validates all operators in sequence
 - Repeated layers: only validate layer 0
 
 ## Out of Scope
+
 [Training, backpropagation, quantization, etc.]
 ```
 
@@ -96,6 +104,7 @@ To find NNN: glob `BACKLOG/*.md`, extract the highest 3-digit prefix across all 
 Break the PRD into **vertical slice** issues — each issue is a thin end-to-end slice, NOT a horizontal layer.
 
 **Process:**
+
 1. Read the PRD
 2. Draft slices — typically one issue per operator or operator group:
    - Issue for scaffolding (e2e utilities, dump script, overview)
@@ -106,21 +115,27 @@ Break the PRD into **vertical slice** issues — each issue is a thin end-to-end
 4. Create `BACKLOG/ISSUE-NNN-slug.md` files in dependency order
 
 **Issue Template:**
+
 ```markdown
 ## Parent PRD
+
 [PRD-NNN-slug.md](PRD-NNN-slug.md)
 
 ## What to build
+
 [Concise description of this vertical slice]
 
 ## Acceptance criteria
+
 - [ ] Criterion 1
 - [ ] Criterion 2
 
 ## Blocked by
+
 - [ISSUE-NNN-slug.md](ISSUE-NNN-slug.md) or "None"
 
 ## User stories addressed
+
 - User story N
 ```
 
@@ -246,6 +261,7 @@ if __name__ == "__main__":
 ```
 
 **Rules:**
+
 - Pure NumPy only in core function — no PyTorch, no scipy
 - No broadcasting tricks that obscure the math — prefer explicit reshape/transpose
 - Variable names match README notation ($W_Q$ → `W_Q`)
@@ -261,6 +277,7 @@ The README is the **primary artifact** — a standalone, publishable blog post t
 ## Target Audience
 
 An engineering graduate who:
+
 - Knows linear algebra (matrix multiplication, eigenvalues, vector spaces)
 - Knows basic calculus (derivatives, chain rule)
 - Knows basic probability (mean, variance)
@@ -278,52 +295,62 @@ An engineering graduate who:
 Every README MUST include ALL of the following:
 
 ### Section 1: Opening Hook & Motivation (为什么要关心这个算子?)
+
 - Real-world analogy making the concept tangible
 - Why this operator exists — what problem does it solve?
 - Where it sits in the inference pipeline
 - Give a reason to care before any math appears
 
 ### Section 2: Prerequisites (前置知识)
+
 - List and briefly review needed math concepts
 - Quick refreshers — don't assume perfect recall
 - Forward links: "we'll use this in Section 4..."
 
 ### Section 3: Core Mathematical Definition (核心数学定义)
+
 - Formal definition with full notation
 - Every symbol defined explicitly on first use
 - Display math for main equations
 
 ### Section 4: Step-by-Step Derivation (逐步推导)
+
 - One operation at a time, show intermediate results
 - Never skip steps
 - Explain **why** each step is taken: "注意这里...", "之所以要这样做, 是因为..."
 
 ### Section 5: Numerical Example (数值算例)
+
 - Complete small example with concrete numbers
 - Dimensions small enough to trace by hand (e.g., 2×3)
 - Show every intermediate computation
 
 ### Section 6: Geometric / Visual Intuition (几何直觉)
+
 - What does the operation DO to data geometrically?
 - Analogies: rotations, projections, scaling, gating
 - Project high-dim to 2D/3D for intuition
 
 ### Section 7: Design Motivation & History (设计动机与历史)
+
 - Who invented it, which paper, what it replaced
 - Why this variant over alternatives
 - Tradeoffs gained/lost
 
 ### Section 8: Model-Specific Details (在本模型中的具体应用)
+
 - Exact dimensions, parameter counts, config values
 - Which layers/modules use this operator
 - Model-specific quirks
 
 ### Section 9: NumPy Implementation Walkthrough (NumPy 实现详解)
+
 - Complete core function from impl.py
 - Annotate each line: which equation does it implement?
 - Explicit shape transformations: "输入 shape 为 (B, T, D), reshape 为..."
 
 ### Section 10: Common Pitfalls & Summary (常见陷阱与小结)
+
 - 3-5 common mistakes (numerical stability, shape errors, broadcasting)
 - Summary table or bullet list of key takeaways
 - Optional further reading
@@ -354,6 +381,7 @@ Every README MUST include ALL of the following:
 # PHASE 4: E2E VALIDATION RUNNER
 
 Create `e2e/run_numpy_e2e.py` that:
+
 1. Imports each operator's validation functions
 2. Runs them in inference execution order
 3. Collects pass/fail results
@@ -373,6 +401,7 @@ E2E Validation Summary: 20/20 PASS
 # EXECUTION STRATEGY
 
 ## Parallelization
+
 - impl.py files: implement in dependency order (linear before attention, etc.)
 - READMEs: write in **parallel batches** by complexity:
   - Batch 1: Simple element-wise ops (activations, norms)
@@ -381,6 +410,7 @@ E2E Validation Summary: 20/20 PASS
   - Batch 4: Composite (blocks, decoder layers, lm_head)
 
 ## Quality Checklist (before commit)
+
 - [ ] All `impl.py` run individually: `python -m operators.NN_name.impl`
 - [ ] E2E runner: all PASS
 - [ ] Every README has all 10 sections
@@ -392,6 +422,7 @@ E2E Validation Summary: 20/20 PASS
 ## Phase Detection
 
 When starting, check project state:
+
 - No `BACKLOG/` → start from Phase 0A
 - `BACKLOG/PRD-*.md` but no issues → start from Phase 0B
 - `BACKLOG/ISSUE-*.md` but no `e2e/` → start from Phase 1
