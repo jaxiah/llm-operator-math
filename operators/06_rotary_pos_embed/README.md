@@ -388,6 +388,8 @@ $$
 类比: 地图的比例尺. 你既需要 1:1000 的街道地图来找巷子里的餐馆,
 也需要 1:1000000 的省级地图来规划跨城市的路线. RoPE 的频率设计让模型同时拥有两种"地图".
 
+![RoPE: Position-Dependent Rotation in 2D Sub-spaces](./rotation_pattern.png)
+
 ### 7.4 为什么 Qwen2-VL 使用 base=1,000,000?
 
 原始 RoPE 论文用的 base 是 10,000. Qwen2-VL 把它提升到了 1,000,000. 为什么?

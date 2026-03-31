@@ -95,6 +95,8 @@ $$
 \text{LayerNorm} \xrightarrow{\text{去掉 } x-\mu} \xrightarrow{\sigma^2 \to E[x^2]} \xrightarrow{\text{去掉 } \beta} \text{RMSNorm}
 $$
 
+![RMSNorm vs LayerNorm: RMS Preserves Scale Without Centering](./before_after.png)
+
 ---
 
 ## 4. RMS (均方根): 定义与几何解释

@@ -449,6 +449,8 @@ $$
 - **SiLU 更"宽容"** — — 它在负半轴的输出绝对值明显更大 (如 $x=-2$ 时 SiLU 为 $-0.238$ 而 QuickGELU 仅 $-0.064$), 因为 $\sigma(x)$ 比 $\sigma(1.702x)$ 下降得更慢.
 - 在正半轴, 三者趋于一致, 都接近恒等函数 $y = x$.
 
+![QuickGELU vs ReLU vs SiLU: Function Curves and Derivatives](./activation_curves.png)
+
 ---
 
 ## 十, 为什么 CLIP 选择了 QuickGELU?

@@ -577,3 +577,5 @@ python -m operators.01_linear.impl
 ```
 
 该脚本会加载模型的真实权重和预先 dump 的激活值, 分别验证 Vision MLP fc1 和 Text gate_proj 两个线性层.
+
+![Linear Transform: y = x @ W.T](./error_dist.png)

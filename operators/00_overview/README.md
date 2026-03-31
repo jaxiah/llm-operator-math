@@ -76,10 +76,12 @@
 ### Vision Encoder
 
 1. **Conv3d Patch Embedding (05)** — 图像像素 → patch embeddings
+
    - 将 `pixel_values` 按 $(2 \times 14 \times 14)$ 窗口展平，投影到 $d=1280$
    - 当 stride = kernel_size 时退化为线性投影
 
 2. **Vision Block × 32 (16)** — 代表层: block 0
+
    - **LayerNorm (03)** — 第一个归一化
    - **Vision Multi-Head Attention (07)** + **2D RoPE (06)** — 16 头自注意力 + 窗口注意力
    - **Residual Connection (13)** — $x' = x + \text{Attn}(\text{LN}(x))$
@@ -94,9 +96,11 @@
 ### Text Decoder
 
 4. **Token Embedding (14)** — token ids → embeddings + vision token 替换
+
    - 查表 $E[\text{token\_id}]$ 得到文本嵌入，vision token 位置替换为 Patch Merger 输出
 
 5. **Decoder Layer × 28 (17)** — 代表层: layer 0
+
    - **RMSNorm (04)** — 输入归一化（无 bias，无中心化）
    - **Grouped Query Attention (07)** + **3D M-RoPE (06)** — 12 个 Q 头 / 2 个 KV 头 + 多模态旋转位置编码
    - **Residual Connection (13)** — $h = x + \text{Attn}(\text{RMSNorm}(x))$

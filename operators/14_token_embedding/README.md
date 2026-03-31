@@ -214,6 +214,8 @@ $$
 
 Qwen2-VL-2B 选择 1536 是在 ~15 亿参数的预算下做出的平衡.
 
+![Token Embedding: Lookup Table and Cosine Similarity](./embed_norm.png)
+
 ### 4.4 嵌入空间中的"方向"有意义
 
 训练好的嵌入空间中, 某些方向对应特定的语义概念. 经典的例子:

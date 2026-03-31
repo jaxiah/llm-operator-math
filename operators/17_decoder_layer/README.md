@@ -804,6 +804,8 @@ def decoder_layer(x, input_ln_w, post_ln_w, gate_w, up_w, down_w, attn_output):
 
 请注意 Step 3 和 Step 6 的关键细节: **残差连接加的是归一化之前的值**. 这是 Pre-Norm 架构的标志 — — 归一化只影响子层 (Attention / MLP) 的输入, 而残差路径始终保持"原始"状态.
 
+![Decoder Layer: RMSNorm + GQA + SwiGLU with Pre-Norm Residuals](./component_error.png)
+
 ---
 
 ## 在 Qwen2-VL 中的位置

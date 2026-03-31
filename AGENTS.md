@@ -11,6 +11,19 @@ For every operator inside a neural network model, produce two artifacts:
 
 The workflow is structured in phases. Start from whichever phase matches the current project state.
 
+## Single-Issue Discipline (CRITICAL)
+
+**Each invocation processes exactly ONE issue (= one operator or one operator group).**
+
+This is a hard constraint for context management:
+- Phase 0A produces one PRD (bounded scope)
+- Phase 0B processes one issue at a time (bounded context)
+- Phases 2+3 process one issue at a time: write its impl.py, README, and concept plot
+
+**Never batch multiple operators into a single invocation.** If asked to "do all operators", do the first one, commit, then tell the user to invoke again for the next.
+
+Before starting work on Phases 2-3, identify which ISSUE you are working on. Read it from `BACKLOG/` and confirm with the user if ambiguous.
+
 ---
 
 # PHASE 0: PRD & ISSUE PLANNING
@@ -239,9 +252,31 @@ if __name__ == "__main__":
 
 ---
 
-# PHASE 3: MATH README AUTHORING (THE CORE DELIVERABLE)
+# PHASE 3: MATH README AUTHORING + CONCEPT PLOT (THE CORE DELIVERABLE)
 
 The README is the **primary artifact** — a standalone, publishable blog post that fully explains the operator.
+
+## Concept Plot Workflow (Integrated into README Writing)
+
+While writing the README, **plan visualizations as part of the writing process** — not as an afterthought. When a diagram would explain the concept better than text:
+
+1. **Decide inline**: "this concept needs a figure" (e.g., a function curve, a tensor shape diagram, an attention heatmap)
+2. **Write the image reference immediately**: `![Descriptive Alt Text](./filename.png)` — this is both placeholder and final syntax
+3. **Continue writing the README** to completion
+
+After the README is done:
+
+4. **Write the plotting function** in `e2e/generate_concept_plots.py` — append a `plot_NN_operator()` function that generates the PNG with the exact filename referenced in the README
+5. **Run the function** to generate the PNG
+6. **Read the PNG** to verify rendering (no text overflow, legible labels, correct content)
+7. If there are issues, fix and regenerate
+
+**Plot design principles:**
+- **Synthetic data only** — concept plots must not depend on model weights or activation dumps
+- Focus on **conceptual understanding**, not validation results
+- Good plots: function curves + derivatives, small worked-example heatmaps, tensor shape diagrams, architecture data-flow diagrams, gating mechanism visualizations
+- Use `e2e/plot_utils.py` for shared matplotlib setup
+- One plot per operator is usually enough — don't force a plot where text suffices
 
 ## Target Audience
 
@@ -369,24 +404,27 @@ E2E Validation Summary: 20/20 PASS
 
 # EXECUTION STRATEGY
 
-## Parallelization
+## Single-Issue Execution Flow (Per Invocation)
 
-- impl.py files: implement in dependency order (linear before attention, etc.)
-- READMEs: write in **parallel batches** by complexity:
-  - Batch 1: Simple element-wise ops (activations, norms)
-  - Batch 2: Medium (linear, embedding, residual)
-  - Batch 3: Complex (attention, RoPE, conv3d)
-  - Batch 4: Composite (blocks, decoder layers, lm_head)
+Each invocation for a specific operator follows this sequence:
 
-## Quality Checklist (before commit)
+1. Read the ISSUE from `BACKLOG/`
+2. Write `impl.py` (Phase 2) — core operator + validation
+3. Write `README.md` (Phase 3) — with `![](./name.png)` inline where needed
+4. Append plot function to `e2e/generate_concept_plots.py` and run it
+5. Read the generated PNG to verify rendering quality
+6. Commit all artifacts for this operator
 
-- [ ] All `impl.py` run individually: `python -m operators.NN_name.impl`
-- [ ] E2E runner: all PASS
-- [ ] Every README has all 10 sections
+## Quality Checklist (before commit for each operator)
+
+- [ ] `impl.py` runs individually: `python -m operators.NN_name.impl`
+- [ ] README has all 10 sections
 - [ ] MathJax renders (no broken `$...$` pairs)
 - [ ] Dimensions consistent across README and impl.py
 - [ ] Model-specific numbers accurate
 - [ ] Variable names in code match README notation
+- [ ] Concept plot PNG exists and renders correctly
+- [ ] README image reference `![...](./name.png)` matches actual PNG filename
 
 ## Phase Detection
 

@@ -412,6 +412,8 @@ $$
 g = [0.0749,\; -0.1241,\; 0.3564,\; 0.2188,\; -0.1346,\; 0.5094]
 $$
 
+![Gated MLP (SwiGLU): Two Parallel Paths with Element-wise Gating](./gate_dist.png)
+
 ### 步骤 3: Up 投影 — $u = x \cdot W_u^T$
 
 $$

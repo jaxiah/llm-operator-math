@@ -719,6 +719,8 @@ Vision Block 内部包含一个复杂的组件 — — 窗口注意力 (Windowed
 - **独立开发**: 可以先开发和验证简单的组件, 再组合成复杂的系统
 - **复用已验证的组件**: 一旦确认 LayerNorm 和 MLP 是正确的, 就可以把它们当作"可信的零件"来构建 Block
 
+![Vision Block: Pre-Norm with Two Residual Connections](./component_error.png)
+
 ---
 
 ## NumPy 实现

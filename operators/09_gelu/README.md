@@ -402,6 +402,8 @@ $$
 
 **最大绝对误差约 $4 \times 10^{-4}$**, 对于深度学习来说完全可以接受.
 
+![GELU: Exact (erf) vs Tanh Approximation with Error Analysis](./activation_curves.png)
+
 ---
 
 ## 九, GELU 的非单调性: 那个神奇的小凹坑

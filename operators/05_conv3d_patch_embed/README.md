@@ -672,3 +672,5 @@ python -m operators.05_conv3d_patch_embed.impl
 该脚本加载 Qwen2-VL-2B-Instruct 的真实权重和预录的激活值,
 将 14308 个 patch 通过我们的 `conv3d_patch_embed` 函数,
 并与 PyTorch 的 `nn.Conv3d` 输出逐元素比较.
+
+![Conv3d Patch Embed: Image → Patches → Embedding Vectors](./error_dist.png)

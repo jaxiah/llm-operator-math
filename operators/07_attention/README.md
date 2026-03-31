@@ -365,6 +365,8 @@ $$
 
 (第三个 token 的 query 与所有 key 同样相似, 所以均匀关注所有位置.)
 
+![Scaled Dot-Product Attention: Scores → Softmax → Weights](./attn_weights.png)
+
 ### 7.5 Step 4: 加权求和
 
 $$
@@ -458,8 +460,8 @@ Softmax 逐行:
 
 一个 attention head 只能学习**一种**注意力模式. 但语言中的关系是多元的:
 
-- 语法关系: 主语→谓语
-- 指代关系: 代词→先行词 ("它"→"小猫")
+- 语法关系: 主语 → 谓语
+- 指代关系: 代词 → 先行词 ("它"→"小猫")
 - 位置关系: 相邻词的局部依赖
 
 单头 attention 就像只有一个人在做决策 — — 能力有限.

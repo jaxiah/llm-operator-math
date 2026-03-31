@@ -136,7 +136,7 @@ def register_hooks(model, output_dir: str) -> list:
 
                 # Save outputs
                 tensors = _extract_tensors(output)
-                if len(tensors) == 1 and tensors[0][0] == "":
+                if len(tensors) == 1:
                     _save_tensor(output_dir, mod_name, "output", tensors[0][1])
                 else:
                     for suffix, tensor in tensors:
@@ -181,7 +181,11 @@ def run_inference(image_path: str, output_dir: str):
     ]
 
     text = processor.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
-    image_inputs, video_inputs, _ = process_vision_info(messages)
+    vision_info = process_vision_info(messages)
+    if len(vision_info) == 3:
+        image_inputs, video_inputs, _ = vision_info
+    else:
+        image_inputs, video_inputs = vision_info
     inputs = processor(text=[text], images=image_inputs, videos=video_inputs, padding=True, return_tensors="pt")
     inputs = inputs.to(model.device)
 
