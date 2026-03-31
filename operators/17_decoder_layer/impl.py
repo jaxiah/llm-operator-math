@@ -33,6 +33,7 @@ residual_add = _residual_mod.residual_add
 # 核心实现
 # ---------------------------------------------------------------------------
 
+
 def gated_mlp(
     x: np.ndarray,
     gate_weight: np.ndarray,
@@ -122,6 +123,7 @@ PREFIX = "model__language_model__layers__0"
 
 def _load_validate():
     from e2e.validate import validate, load_activation
+
     return validate, load_activation
 
 
@@ -203,9 +205,9 @@ def validate_full_layer() -> bool:
     attn_out = load_activation(DUMP_DIR, f"{PREFIX}__self_attn_output_idx0")
     expected = load_activation(DUMP_DIR, f"{PREFIX}_output")
 
-    print(f"层输入形状: {layer_input.shape}")     # (1, 3602, 1536)
-    print(f"注意力输出形状: {attn_out.shape}")     # (1, 3602, 1536)
-    print(f"期望输出形状: {expected.shape}")        # (1, 3602, 1536)
+    print(f"层输入形状: {layer_input.shape}")  # (1, 3602, 1536)
+    print(f"注意力输出形状: {attn_out.shape}")  # (1, 3602, 1536)
+    print(f"期望输出形状: {expected.shape}")  # (1, 3602, 1536)
 
     weight_keys = [
         "model.layers.0.input_layernorm.weight",

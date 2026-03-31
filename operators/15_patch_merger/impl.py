@@ -130,10 +130,12 @@ def validate_layer_norm() -> bool:
     x = load_activation(DUMP_DIR, "model__visual__merger__ln_q_input")
     expected = load_activation(DUMP_DIR, "model__visual__merger__ln_q_output")
 
-    weights = load_weights([
-        "visual.merger.ln_q.weight",
-        "visual.merger.ln_q.bias",
-    ])
+    weights = load_weights(
+        [
+            "visual.merger.ln_q.weight",
+            "visual.merger.ln_q.bias",
+        ]
+    )
     actual = layer_norm(
         x,
         weights["visual.merger.ln_q.weight"],
@@ -156,12 +158,14 @@ def validate_mlp() -> bool:
     print(f"MLP 输入形状: {x.shape}")  # (3577, 5120)
     print(f"期望输出形状: {expected.shape}")  # (3577, 1536)
 
-    weights = load_weights([
-        "visual.merger.mlp.0.weight",
-        "visual.merger.mlp.0.bias",
-        "visual.merger.mlp.2.weight",
-        "visual.merger.mlp.2.bias",
-    ])
+    weights = load_weights(
+        [
+            "visual.merger.mlp.0.weight",
+            "visual.merger.mlp.0.bias",
+            "visual.merger.mlp.2.weight",
+            "visual.merger.mlp.2.bias",
+        ]
+    )
 
     h = x @ weights["visual.merger.mlp.0.weight"].T + weights["visual.merger.mlp.0.bias"]
     h = gelu_exact(h)

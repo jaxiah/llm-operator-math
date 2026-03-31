@@ -29,7 +29,7 @@ def rms_norm(x: np.ndarray, weight: np.ndarray, eps: float = 1e-6) -> np.ndarray
         归一化后的张量，形状与输入相同。
     """
     # 计算 x^2 沿最后一维的均值
-    mean_sq = np.mean(x ** 2, axis=-1, keepdims=True)
+    mean_sq = np.mean(x**2, axis=-1, keepdims=True)
 
     # RMS = sqrt(mean(x^2) + eps)
     rms = np.sqrt(mean_sq + eps)

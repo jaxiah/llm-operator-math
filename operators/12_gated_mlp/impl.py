@@ -9,7 +9,6 @@ import glob
 import os
 import numpy as np
 
-
 # ---------------------------------------------------------------------------
 # 核心实现
 # ---------------------------------------------------------------------------
@@ -42,10 +41,10 @@ def gated_mlp(
     Returns:
         输出张量 (..., d)
     """
-    gate = silu(x @ gate_weight.T)   # (..., d_ff)
-    up = x @ up_weight.T              # (..., d_ff)
-    hidden = gate * up                 # (..., d_ff) 逐元素门控
-    output = hidden @ down_weight.T    # (..., d)
+    gate = silu(x @ gate_weight.T)  # (..., d_ff)
+    up = x @ up_weight.T  # (..., d_ff)
+    hidden = gate * up  # (..., d_ff) 逐元素门控
+    output = hidden @ down_weight.T  # (..., d)
     return output
 
 
@@ -91,7 +90,7 @@ if __name__ == "__main__":
     x = load_activation(dump_dir, "model__language_model__layers__0__mlp_input")
     expected = load_activation(dump_dir, "model__language_model__layers__0__mlp_output")
 
-    print(f"输入形状: {x.shape}")       # (1, 3602, 1536)
+    print(f"输入形状: {x.shape}")  # (1, 3602, 1536)
     print(f"期望输出形状: {expected.shape}")  # (1, 3602, 1536)
     print()
 
@@ -104,7 +103,7 @@ if __name__ == "__main__":
     weights = load_weights(weight_keys)
 
     gate_w = weights["model.layers.0.mlp.gate_proj.weight"]  # (8960, 1536)
-    up_w = weights["model.layers.0.mlp.up_proj.weight"]      # (8960, 1536)
+    up_w = weights["model.layers.0.mlp.up_proj.weight"]  # (8960, 1536)
     down_w = weights["model.layers.0.mlp.down_proj.weight"]  # (1536, 8960)
 
     print(f"gate_proj: {gate_w.shape}")
@@ -116,6 +115,5 @@ if __name__ == "__main__":
     actual = gated_mlp(x, gate_w, up_w, down_w)
 
     # 验证
-    ok = validate("Gated MLP / SwiGLU (gate → silu → up → down)", actual, expected,
-                  atol=1e-4, rtol=1e-4)
+    ok = validate("Gated MLP / SwiGLU (gate → silu → up → down)", actual, expected, atol=1e-4, rtol=1e-4)
     sys.exit(0 if ok else 1)

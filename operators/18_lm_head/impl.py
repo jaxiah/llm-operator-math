@@ -27,6 +27,7 @@ rms_norm = _rms_norm_mod.rms_norm
 # 核心实现
 # ---------------------------------------------------------------------------
 
+
 def lm_head(
     x: np.ndarray,
     norm_weight: np.ndarray,
@@ -82,6 +83,7 @@ DUMP_DIR = "activations"
 
 def _load_validate():
     from e2e.validate import validate, load_activation
+
     return validate, load_activation
 
 
@@ -97,8 +99,8 @@ def validate_final_norm() -> bool:
     weights = load_weights(["model.norm.weight"])
     w = weights["model.norm.weight"]
 
-    print(f"输入形状: {x.shape}")        # (1, 3602, 1536)
-    print(f"权重形状: {w.shape}")         # (1536,)
+    print(f"输入形状: {x.shape}")  # (1, 3602, 1536)
+    print(f"权重形状: {w.shape}")  # (1536,)
 
     actual = rms_norm(x, w)
     return validate("final_rms_norm", actual, expected, atol=1e-4, rtol=1e-4)
@@ -120,16 +122,15 @@ def validate_lm_head_projection() -> bool:
         weights = load_weights(["model.embed_tokens.weight"])
         lm_w = weights["model.embed_tokens.weight"]
 
-    print(f"输入形状: {x.shape}")        # (1, 3602, 1536)
-    print(f"权重形状: {lm_w.shape}")     # (151936, 1536)
+    print(f"输入形状: {x.shape}")  # (1, 3602, 1536)
+    print(f"权重形状: {lm_w.shape}")  # (151936, 1536)
 
     # 仅验证最后一个 token（完整矩阵乘法 ~2GB 结果）
-    x_last = x[:, -1:, :]                # (1, 1, 1536)
-    expected_last = expected[:, -1:, :]   # (1, 1, 151936)
-    actual_last = x_last @ lm_w.T        # (1, 1, 151936)
+    x_last = x[:, -1:, :]  # (1, 1, 1536)
+    expected_last = expected[:, -1:, :]  # (1, 1, 151936)
+    actual_last = x_last @ lm_w.T  # (1, 1, 151936)
 
-    return validate("lm_head_last_token", actual_last, expected_last,
-                     atol=1e-3, rtol=1e-3)
+    return validate("lm_head_last_token", actual_last, expected_last, atol=1e-3, rtol=1e-3)
 
 
 def validate_full_lm_head() -> bool:
@@ -138,8 +139,8 @@ def validate_full_lm_head() -> bool:
     norm_input = load_activation(DUMP_DIR, "model__language_model__norm_input")
     expected = load_activation(DUMP_DIR, "_final_logits")
 
-    print(f"Norm 输入形状: {norm_input.shape}")   # (1, 3602, 1536)
-    print(f"期望 logits 形状: {expected.shape}")   # (1, 3602, 151936)
+    print(f"Norm 输入形状: {norm_input.shape}")  # (1, 3602, 1536)
+    print(f"期望 logits 形状: {expected.shape}")  # (1, 3602, 151936)
 
     # 加载权重
     try:
@@ -154,13 +155,12 @@ def validate_full_lm_head() -> bool:
     norm_w = weights["model.norm.weight"]
 
     # 仅验证最后一个 token
-    norm_input_last = norm_input[:, -1:, :]      # (1, 1, 1536)
-    expected_last = expected[:, -1:, :]           # (1, 1, 151936)
+    norm_input_last = norm_input[:, -1:, :]  # (1, 1, 1536)
+    expected_last = expected[:, -1:, :]  # (1, 1, 151936)
 
     actual_last = lm_head(norm_input_last, norm_w, lm_w)
 
-    ok = validate("full_lm_head_last_token", actual_last, expected_last,
-                   atol=1e-3, rtol=1e-3)
+    ok = validate("full_lm_head_last_token", actual_last, expected_last, atol=1e-3, rtol=1e-3)
 
     # 展示 argmax 预测结果
     pred_token_id = int(np.argmax(actual_last[0, -1, :]))

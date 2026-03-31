@@ -103,6 +103,7 @@ lm_head = _lm_head_mod.lm_head
 # Vision Encoder
 # ============================================================
 
+
 def run_conv3d_patch_embed() -> None:
     """05: Conv3d Patch Embedding — pixel_values → patch embeddings."""
     print("\n--- 05: Conv3d Patch Embedding ---")
@@ -125,10 +126,14 @@ def run_vision_block() -> None:
     attn_output = load_activation(DUMP_DIR, "model__visual__blocks__0__attn_output")
 
     wk = [
-        "visual.blocks.0.norm1.weight", "visual.blocks.0.norm1.bias",
-        "visual.blocks.0.norm2.weight", "visual.blocks.0.norm2.bias",
-        "visual.blocks.0.mlp.fc1.weight", "visual.blocks.0.mlp.fc1.bias",
-        "visual.blocks.0.mlp.fc2.weight", "visual.blocks.0.mlp.fc2.bias",
+        "visual.blocks.0.norm1.weight",
+        "visual.blocks.0.norm1.bias",
+        "visual.blocks.0.norm2.weight",
+        "visual.blocks.0.norm2.bias",
+        "visual.blocks.0.mlp.fc1.weight",
+        "visual.blocks.0.mlp.fc1.bias",
+        "visual.blocks.0.mlp.fc2.weight",
+        "visual.blocks.0.mlp.fc2.bias",
     ]
     W = load_weights(wk)
 
@@ -151,7 +156,9 @@ def run_vision_block() -> None:
     # Sub-step 4: MLP
     mlp_in = load_activation(DUMP_DIR, "model__visual__blocks__0__mlp_input")
     mlp_exp = load_activation(DUMP_DIR, "model__visual__blocks__0__mlp_output")
-    actual = vision_mlp(mlp_in, W["visual.blocks.0.mlp.fc1.weight"], W["visual.blocks.0.mlp.fc1.bias"], W["visual.blocks.0.mlp.fc2.weight"], W["visual.blocks.0.mlp.fc2.bias"])
+    actual = vision_mlp(
+        mlp_in, W["visual.blocks.0.mlp.fc1.weight"], W["visual.blocks.0.mlp.fc1.bias"], W["visual.blocks.0.mlp.fc2.weight"], W["visual.blocks.0.mlp.fc2.bias"]
+    )
     record("vision_block0_mlp", validate("vision_block0_mlp", actual, mlp_exp, atol=1e-4, rtol=1e-4))
 
     # Sub-step 5: MLP residual
@@ -164,11 +171,15 @@ def run_vision_block() -> None:
 
     actual = vision_block(
         block_input,
-        W["visual.blocks.0.norm1.weight"], W["visual.blocks.0.norm1.bias"],
+        W["visual.blocks.0.norm1.weight"],
+        W["visual.blocks.0.norm1.bias"],
         attn_fn,
-        W["visual.blocks.0.norm2.weight"], W["visual.blocks.0.norm2.bias"],
-        W["visual.blocks.0.mlp.fc1.weight"], W["visual.blocks.0.mlp.fc1.bias"],
-        W["visual.blocks.0.mlp.fc2.weight"], W["visual.blocks.0.mlp.fc2.bias"],
+        W["visual.blocks.0.norm2.weight"],
+        W["visual.blocks.0.norm2.bias"],
+        W["visual.blocks.0.mlp.fc1.weight"],
+        W["visual.blocks.0.mlp.fc1.bias"],
+        W["visual.blocks.0.mlp.fc2.weight"],
+        W["visual.blocks.0.mlp.fc2.bias"],
     )
     record("vision_block0_full", validate("vision_block0_full", actual, block_output, atol=1e-4, rtol=1e-4))
 
@@ -178,9 +189,12 @@ def run_patch_merger() -> None:
     print("\n--- 15: Patch Merger ---")
 
     wk = [
-        "visual.merger.ln_q.weight", "visual.merger.ln_q.bias",
-        "visual.merger.mlp.0.weight", "visual.merger.mlp.0.bias",
-        "visual.merger.mlp.2.weight", "visual.merger.mlp.2.bias",
+        "visual.merger.ln_q.weight",
+        "visual.merger.ln_q.bias",
+        "visual.merger.mlp.0.weight",
+        "visual.merger.mlp.0.bias",
+        "visual.merger.mlp.2.weight",
+        "visual.merger.mlp.2.bias",
     ]
     W = load_weights(wk)
 
@@ -202,9 +216,12 @@ def run_patch_merger() -> None:
     merger_in = load_activation(DUMP_DIR, "model__visual__merger_input")
     actual = patch_merger(
         merger_in,
-        W["visual.merger.ln_q.weight"], W["visual.merger.ln_q.bias"],
-        W["visual.merger.mlp.0.weight"], W["visual.merger.mlp.0.bias"],
-        W["visual.merger.mlp.2.weight"], W["visual.merger.mlp.2.bias"],
+        W["visual.merger.ln_q.weight"],
+        W["visual.merger.ln_q.bias"],
+        W["visual.merger.mlp.0.weight"],
+        W["visual.merger.mlp.0.bias"],
+        W["visual.merger.mlp.2.weight"],
+        W["visual.merger.mlp.2.bias"],
     )
     record("patch_merger_full", validate("patch_merger_full", actual, merger_exp, atol=1e-3, rtol=1e-3))
 
@@ -212,6 +229,7 @@ def run_patch_merger() -> None:
 # ============================================================
 # Text Decoder
 # ============================================================
+
 
 def run_token_embedding() -> None:
     """14: Token Embedding — token ids → embeddings."""
@@ -329,6 +347,7 @@ def run_lm_head() -> None:
 # ============================================================
 # Main
 # ============================================================
+
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="E2E numpy validation for Qwen2-VL-2B-Instruct")

@@ -10,7 +10,6 @@ import glob
 import os
 import numpy as np
 
-
 # ---------------------------------------------------------------------------
 # 核心实现
 # ---------------------------------------------------------------------------
@@ -45,9 +44,9 @@ def vision_mlp(
     Returns:
         输出张量 (n, d)
     """
-    h = x @ fc1_weight.T + fc1_bias   # (n, d_ff)
-    h = quick_gelu(h)                  # (n, d_ff)
-    y = h @ fc2_weight.T + fc2_bias    # (n, d)
+    h = x @ fc1_weight.T + fc1_bias  # (n, d_ff)
+    h = quick_gelu(h)  # (n, d_ff)
+    y = h @ fc2_weight.T + fc2_bias  # (n, d)
     return y
 
 
@@ -93,7 +92,7 @@ if __name__ == "__main__":
     x = load_activation(dump_dir, "model__visual__blocks__0__mlp_input")
     expected = load_activation(dump_dir, "model__visual__blocks__0__mlp_output")
 
-    print(f"输入形状: {x.shape}")       # (14308, 1280)
+    print(f"输入形状: {x.shape}")  # (14308, 1280)
     print(f"期望输出形状: {expected.shape}")  # (14308, 1280)
     print()
 
@@ -107,9 +106,9 @@ if __name__ == "__main__":
     weights = load_weights(weight_keys)
 
     fc1_w = weights["visual.blocks.0.mlp.fc1.weight"]  # (5120, 1280)
-    fc1_b = weights["visual.blocks.0.mlp.fc1.bias"]    # (5120,)
+    fc1_b = weights["visual.blocks.0.mlp.fc1.bias"]  # (5120,)
     fc2_w = weights["visual.blocks.0.mlp.fc2.weight"]  # (1280, 5120)
-    fc2_b = weights["visual.blocks.0.mlp.fc2.bias"]    # (1280,)
+    fc2_b = weights["visual.blocks.0.mlp.fc2.bias"]  # (1280,)
 
     print(f"fc1_weight: {fc1_w.shape}, fc1_bias: {fc1_b.shape}")
     print(f"fc2_weight: {fc2_w.shape}, fc2_bias: {fc2_b.shape}")
@@ -119,6 +118,5 @@ if __name__ == "__main__":
     actual = vision_mlp(x, fc1_w, fc1_b, fc2_w, fc2_b)
 
     # 验证
-    ok = validate("Vision MLP (FC1 → QuickGELU → FC2)", actual, expected,
-                  atol=1e-4, rtol=1e-4)
+    ok = validate("Vision MLP (FC1 → QuickGELU → FC2)", actual, expected, atol=1e-4, rtol=1e-4)
     sys.exit(0 if ok else 1)

@@ -36,7 +36,7 @@
  │       └──────────────────────────────────────┘              │
  │                                                             │
  │  patch embeds ──► Patch Merger (15) ──► vision tokens       │
- │      LN(03) → 空间合并 → Linear→GELU(09)→Linear            │
+ │      LN(03) → 空间合并 → Linear→GELU(09)→Linear             │
  │        (14308, 1280) → (3577, 1536)                         │
  └────────────────────────┬────────────────────────────────────┘
                           │ vision tokens
@@ -45,8 +45,8 @@
  │                   Text Decoder (LLM)                        │
  │                                                             │
  │  input_ids ──► Token Embedding (14) ──► text embeddings     │
- │                  + vision token 替换                         │
- │                     (1, 3602, 1536)                          │
+ │                  + vision token 替换                        │
+ │                     (1, 3602, 1536)                         │
  │                                                             │
  │       ┌──────────────────────────────────────┐              │
  │       │     Decoder Layer × 28 (17)          │              │
@@ -62,8 +62,8 @@
  │       │  └───────────────────────────────┘   │              │
  │       └──────────────────────────────────────┘              │
  │                                                             │
- │  hidden ──► Final RMSNorm (04) ──► LM Head (18) ──► logits │
- │                          (1, 3602, 151936)                   │
+ │  hidden ──► Final RMSNorm (04) ──► LM Head (18) ──► logits  │
+ │                          (1, 3602, 151936)                  │
  └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -101,7 +101,7 @@
    - **Grouped Query Attention (07)** + **3D M-RoPE (06)** — 12 个 Q 头 / 2 个 KV 头 + 多模态旋转位置编码
    - **Residual Connection (13)** — $h = x + \text{Attn}(\text{RMSNorm}(x))$
    - **RMSNorm (04)** — 注意力后归一化
-   - **Gated MLP / SwiGLU (12)**: gate\_proj + up\_proj → SiLU (10) → element-wise multiply → down\_proj
+   - **Gated MLP / SwiGLU (12)**: gate_proj + up_proj → SiLU (10) → element-wise multiply → down_proj
      - $1536 \to 8960 \to 1536$
    - **Residual Connection (13)** — $y = h + \text{MLP}(\text{RMSNorm}(h))$
 
@@ -115,26 +115,26 @@
 
 ## 目录索引
 
-| 目录 | 算子 | 说明 |
-|------|------|------|
-| `01_linear/` | Linear | 矩阵乘法 $y = xW^T + b$ |
-| `02_softmax/` | Softmax | 指数归一化 $\text{softmax}(x)_i = e^{x_i} / \sum e^{x_j}$ |
-| `03_layer_norm/` | Layer Normalization | 层归一化 $(x - \mu) / \sqrt{\sigma^2 + \epsilon} \cdot \gamma + \beta$ |
-| `04_rms_norm/` | RMS Normalization | 均方根归一化 $x / \sqrt{\text{mean}(x^2) + \epsilon} \cdot \gamma$ |
-| `05_conv3d_patch_embed/` | Conv3d Patch Embedding | 3D 卷积图像块嵌入（stride=kernel → 线性投影） |
-| `06_rotary_pos_embed/` | Rotary Position Embedding | 旋转位置编码：1D RoPE / 2D Vision RoPE / 3D M-RoPE |
-| `07_attention/` | Attention | 缩放点积注意力 + GQA + KV repeat |
-| `08_quickgelu/` | QuickGELU | 快速 GELU 近似 $x \cdot \sigma(1.702x)$ |
-| `09_gelu/` | GELU | 高斯误差线性单元（精确版 + tanh 近似版） |
-| `10_silu/` | SiLU (Swish) | $x \cdot \sigma(x)$，用于 SwiGLU 门控 |
-| `11_vision_mlp/` | Vision MLP | 视觉前馈网络 FC1 → QuickGELU → FC2 |
-| `12_gated_mlp/` | Gated MLP (SwiGLU) | 门控前馈网络 $(\text{SiLU}(xW_g) \odot xW_u) W_d$ |
-| `13_residual_connection/` | Residual Connection | 残差连接 $y = x + F(x)$ |
-| `14_token_embedding/` | Token Embedding | 词嵌入查找表 $E[\text{id}]$ |
-| `15_patch_merger/` | Patch Merger | 补丁合并: LN → 空间合并 → MLP |
-| `16_vision_block/` | Vision Block | 视觉 Transformer 块: LN → Attn → Residual → LN → MLP → Residual |
-| `17_decoder_layer/` | Decoder Layer | 解码器层: RMSNorm → Attn → Residual → RMSNorm → GatedMLP → Residual |
-| `18_lm_head/` | LM Head | 语言模型头: RMSNorm → Linear → logits |
+| 目录                      | 算子                      | 说明                                                                   |
+| ------------------------- | ------------------------- | ---------------------------------------------------------------------- |
+| `01_linear/`              | Linear                    | 矩阵乘法 $y = xW^T + b$                                                |
+| `02_softmax/`             | Softmax                   | 指数归一化 $\text{softmax}(x)_i = e^{x_i} / \sum e^{x_j}$              |
+| `03_layer_norm/`          | Layer Normalization       | 层归一化 $(x - \mu) / \sqrt{\sigma^2 + \epsilon} \cdot \gamma + \beta$ |
+| `04_rms_norm/`            | RMS Normalization         | 均方根归一化 $x / \sqrt{\text{mean}(x^2) + \epsilon} \cdot \gamma$     |
+| `05_conv3d_patch_embed/`  | Conv3d Patch Embedding    | 3D 卷积图像块嵌入（stride=kernel → 线性投影）                          |
+| `06_rotary_pos_embed/`    | Rotary Position Embedding | 旋转位置编码：1D RoPE / 2D Vision RoPE / 3D M-RoPE                     |
+| `07_attention/`           | Attention                 | 缩放点积注意力 + GQA + KV repeat                                       |
+| `08_quickgelu/`           | QuickGELU                 | 快速 GELU 近似 $x \cdot \sigma(1.702x)$                                |
+| `09_gelu/`                | GELU                      | 高斯误差线性单元（精确版 + tanh 近似版）                               |
+| `10_silu/`                | SiLU (Swish)              | $x \cdot \sigma(x)$，用于 SwiGLU 门控                                  |
+| `11_vision_mlp/`          | Vision MLP                | 视觉前馈网络 FC1 → QuickGELU → FC2                                     |
+| `12_gated_mlp/`           | Gated MLP (SwiGLU)        | 门控前馈网络 $(\text{SiLU}(xW_g) \odot xW_u) W_d$                      |
+| `13_residual_connection/` | Residual Connection       | 残差连接 $y = x + F(x)$                                                |
+| `14_token_embedding/`     | Token Embedding           | 词嵌入查找表 $E[\text{id}]$                                            |
+| `15_patch_merger/`        | Patch Merger              | 补丁合并: LN → 空间合并 → MLP                                          |
+| `16_vision_block/`        | Vision Block              | 视觉 Transformer 块: LN → Attn → Residual → LN → MLP → Residual        |
+| `17_decoder_layer/`       | Decoder Layer             | 解码器层: RMSNorm → Attn → Residual → RMSNorm → GatedMLP → Residual    |
+| `18_lm_head/`             | LM Head                   | 语言模型头: RMSNorm → Linear → logits                                  |
 
 ---
 
@@ -144,31 +144,31 @@
 
 ### Vision Encoder
 
-| 参数 | 值 |
-|------|------|
-| embed_dim | 1280 |
-| num_heads | 16 |
-| head_dim | 80 |
+| 参数                 | 值                |
+| -------------------- | ----------------- |
+| embed_dim            | 1280              |
+| num_heads            | 16                |
+| head_dim             | 80                |
 | MLP intermediate dim | 5120 (= 1280 × 4) |
-| num_blocks | 32 |
-| patch_size | 14 × 14 |
-| temporal_patch_size | 2 |
-| spatial_merge_size | 2 |
+| num_blocks           | 32                |
+| patch_size           | 14 × 14           |
+| temporal_patch_size  | 2                 |
+| spatial_merge_size   | 2                 |
 
 ### Text Decoder
 
-| 参数 | 值 |
-|------|------|
-| hidden_size | 1536 |
-| num_attention_heads | 12 |
-| num_key_value_heads | 2 (GQA, 6:1 比率) |
-| head_dim | 128 |
-| MLP intermediate dim | 8960 |
-| num_hidden_layers | 28 |
-| vocab_size | 151936 |
-| max_position_embeddings | 32768 |
-| rms_norm_eps | 1e-6 |
-| rope_theta | 1000000.0 |
+| 参数                    | 值                |
+| ----------------------- | ----------------- |
+| hidden_size             | 1536              |
+| num_attention_heads     | 12                |
+| num_key_value_heads     | 2 (GQA, 6:1 比率) |
+| head_dim                | 128               |
+| MLP intermediate dim    | 8960              |
+| num_hidden_layers       | 28                |
+| vocab_size              | 151936            |
+| max_position_embeddings | 32768             |
+| rms_norm_eps            | 1e-6              |
+| rope_theta              | 1000000.0         |
 
 ---
 

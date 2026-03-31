@@ -13,10 +13,10 @@ import numpy as np
 
 from e2e.validate import validate
 
-
 # ---------------------------------------------------------------------------
 # 核心算子
 # ---------------------------------------------------------------------------
+
 
 def rotate_half(x: np.ndarray) -> np.ndarray:
     """将向量前后两半交换并取负，等价于复数乘以 i。
@@ -62,9 +62,8 @@ def apply_rotary_pos_emb(
 # 频率与角度计算
 # ---------------------------------------------------------------------------
 
-def compute_rope_frequencies(
-    head_dim: int, max_position: int, base: float = 10000.0
-) -> tuple[np.ndarray, np.ndarray]:
+
+def compute_rope_frequencies(head_dim: int, max_position: int, base: float = 10000.0) -> tuple[np.ndarray, np.ndarray]:
     """计算 1D RoPE 的 cos/sin 缓存。
 
     Args:
@@ -90,9 +89,7 @@ def compute_rope_frequencies(
     return cos, sin
 
 
-def compute_vision_rope(
-    grid_thw: np.ndarray, head_dim: int, base: float = 10000.0
-) -> tuple[np.ndarray, np.ndarray]:
+def compute_vision_rope(grid_thw: np.ndarray, head_dim: int, base: float = 10000.0) -> tuple[np.ndarray, np.ndarray]:
     """计算 2D 视觉 RoPE 的 cos/sin。
 
     将 head_dim 对半分：前半用 height 坐标，后半用 width 坐标。
@@ -113,8 +110,8 @@ def compute_vision_rope(
     for thw in grid_thw:
         t, h, w = int(thw[0]), int(thw[1]), int(thw[2])
         # 为每个 patch 生成 (h_pos, w_pos)
-        h_pos = np.repeat(np.arange(h, dtype=np.float64), w)    # (h*w,)
-        w_pos = np.tile(np.arange(w, dtype=np.float64), h)      # (h*w,)
+        h_pos = np.repeat(np.arange(h, dtype=np.float64), w)  # (h*w,)
+        w_pos = np.tile(np.arange(w, dtype=np.float64), h)  # (h*w,)
         # 每帧的 patch 重复 t 次
         h_pos = np.tile(h_pos, t)  # (t*h*w,)
         w_pos = np.tile(w_pos, t)  # (t*h*w,)
@@ -126,7 +123,7 @@ def compute_vision_rope(
         # 拼接 [h_freqs, w_freqs] 再复制，使 rotate_half 的配对正确
         # rotate_half 将 dim i 与 dim i+head_dim/2 配对
         angles_hw = np.concatenate([angles_h, angles_w], axis=-1)  # (N, head_dim//2)
-        angles = np.concatenate([angles_hw, angles_hw], axis=-1)   # (N, head_dim)
+        angles = np.concatenate([angles_hw, angles_hw], axis=-1)  # (N, head_dim)
 
         all_cos.append(np.cos(angles).astype(np.float32))
         all_sin.append(np.sin(angles).astype(np.float32))
@@ -161,14 +158,14 @@ def compute_mrope(
     angle_parts = []
     for dim_idx in range(3):
         start, end = int(sec_cumsum[dim_idx]), int(sec_cumsum[dim_idx + 1])
-        freq_slice = inv_freq[start:end]                             # (section_size,)
-        pos = position_ids[dim_idx].astype(np.float64)               # (seq_len,)
-        angles = np.outer(pos, freq_slice)                           # (seq_len, section_size)
+        freq_slice = inv_freq[start:end]  # (section_size,)
+        pos = position_ids[dim_idx].astype(np.float64)  # (seq_len,)
+        angles = np.outer(pos, freq_slice)  # (seq_len, section_size)
         angle_parts.append(angles)
 
     # 拼接三个维度的角度 (seq_len, 64)，再复制凑成 head_dim
-    angles = np.concatenate(angle_parts, axis=-1)                    # (seq_len, head_dim//2)
-    angles = np.concatenate([angles, angles], axis=-1)               # (seq_len, head_dim)
+    angles = np.concatenate(angle_parts, axis=-1)  # (seq_len, head_dim//2)
+    angles = np.concatenate([angles, angles], axis=-1)  # (seq_len, head_dim)
 
     cos = np.cos(angles).astype(np.float32)
     sin = np.sin(angles).astype(np.float32)
@@ -178,6 +175,7 @@ def compute_mrope(
 # ---------------------------------------------------------------------------
 # 验证：解析性质测试
 # ---------------------------------------------------------------------------
+
 
 def test_rotation_preserves_norm() -> bool:
     """测试 1: 旋转不改变向量范数。"""
@@ -198,8 +196,10 @@ def test_rotation_preserves_norm() -> bool:
 
     return validate(
         "rope_preserves_q_norm",
-        q_norms_after, q_norms_before,
-        atol=1e-4, rtol=1e-4,
+        q_norms_after,
+        q_norms_before,
+        atol=1e-4,
+        rtol=1e-4,
     )
 
 
@@ -233,8 +233,10 @@ def test_relative_position_property() -> bool:
 
     return validate(
         "rope_relative_position_invariance",
-        actual, expected,
-        atol=1e-3, rtol=1e-3,
+        actual,
+        expected,
+        atol=1e-3,
+        rtol=1e-3,
     )
 
 
@@ -250,8 +252,8 @@ def test_1d_rope_analytical() -> bool:
 
     cos, sin = compute_rope_frequencies(head_dim, max_position=3, base=base)
     # cos/sin shape: (3, 4), 取位置 2
-    cos_p = cos[position:position+1]  # (1, 4)
-    sin_p = sin[position:position+1]  # (1, 4)
+    cos_p = cos[position : position + 1]  # (1, 4)
+    sin_p = sin[position : position + 1]  # (1, 4)
 
     # unsqueeze_dim=1 (default) inserts dim at axis=1 for heads broadcasting
     q_rot, _ = apply_rotary_pos_emb(x, x, cos_p, sin_p, unsqueeze_dim=1)
@@ -263,17 +265,28 @@ def test_1d_rope_analytical() -> bool:
     a0, a1 = position * inv_freq[0], position * inv_freq[1]
     # a0=2.0, a1=0.02
 
-    expected = np.array([[[[
-        1.0 * np.cos(a0) - 3.0 * np.sin(a0),   # y0
-        2.0 * np.cos(a1) - 4.0 * np.sin(a1),   # y1
-        3.0 * np.cos(a0) + 1.0 * np.sin(a0),   # y2
-        4.0 * np.cos(a1) + 2.0 * np.sin(a1),   # y3
-    ]]]], dtype=np.float32)
+    expected = np.array(
+        [
+            [
+                [
+                    [
+                        1.0 * np.cos(a0) - 3.0 * np.sin(a0),  # y0
+                        2.0 * np.cos(a1) - 4.0 * np.sin(a1),  # y1
+                        3.0 * np.cos(a0) + 1.0 * np.sin(a0),  # y2
+                        4.0 * np.cos(a1) + 2.0 * np.sin(a1),  # y3
+                    ]
+                ]
+            ]
+        ],
+        dtype=np.float32,
+    )
 
     return validate(
         "rope_1d_analytical",
-        q_rot, expected,
-        atol=1e-5, rtol=1e-5,
+        q_rot,
+        expected,
+        atol=1e-5,
+        rtol=1e-5,
     )
 
 
@@ -297,8 +310,10 @@ def test_mrope_text_only() -> bool:
 
     return validate(
         "mrope_text_matches_1d",
-        cos_mrope, cos_1d,
-        atol=1e-6, rtol=1e-6,
+        cos_mrope,
+        cos_1d,
+        atol=1e-6,
+        rtol=1e-6,
     )
 
 
@@ -323,7 +338,8 @@ def test_vision_rope_shape() -> bool:
             "vision_rope_preserves_norm",
             np.linalg.norm(x_rot, axis=-1),
             np.linalg.norm(x, axis=-1),
-            atol=1e-4, rtol=1e-4,
+            atol=1e-4,
+            rtol=1e-4,
         )
         return ok and ok2
     return ok
@@ -332,6 +348,7 @@ def test_vision_rope_shape() -> bool:
 # ---------------------------------------------------------------------------
 # 入口
 # ---------------------------------------------------------------------------
+
 
 def main() -> None:
     print("=" * 60)

@@ -131,10 +131,12 @@ def validate_norm1() -> bool:
     x = load_activation(DUMP_DIR, "model__visual__blocks__0__norm1_input")
     expected = load_activation(DUMP_DIR, "model__visual__blocks__0__norm1_output")
 
-    weights = load_weights([
-        "visual.blocks.0.norm1.weight",
-        "visual.blocks.0.norm1.bias",
-    ])
+    weights = load_weights(
+        [
+            "visual.blocks.0.norm1.weight",
+            "visual.blocks.0.norm1.bias",
+        ]
+    )
     actual = layer_norm(
         x,
         weights["visual.blocks.0.norm1.weight"],
@@ -165,10 +167,12 @@ def validate_norm2() -> bool:
     x = load_activation(DUMP_DIR, "model__visual__blocks__0__norm2_input")
     expected = load_activation(DUMP_DIR, "model__visual__blocks__0__norm2_output")
 
-    weights = load_weights([
-        "visual.blocks.0.norm2.weight",
-        "visual.blocks.0.norm2.bias",
-    ])
+    weights = load_weights(
+        [
+            "visual.blocks.0.norm2.weight",
+            "visual.blocks.0.norm2.bias",
+        ]
+    )
     actual = layer_norm(
         x,
         weights["visual.blocks.0.norm2.weight"],
@@ -185,12 +189,14 @@ def validate_mlp() -> bool:
     x = load_activation(DUMP_DIR, "model__visual__blocks__0__mlp_input")
     expected = load_activation(DUMP_DIR, "model__visual__blocks__0__mlp_output")
 
-    weights = load_weights([
-        "visual.blocks.0.mlp.fc1.weight",
-        "visual.blocks.0.mlp.fc1.bias",
-        "visual.blocks.0.mlp.fc2.weight",
-        "visual.blocks.0.mlp.fc2.bias",
-    ])
+    weights = load_weights(
+        [
+            "visual.blocks.0.mlp.fc1.weight",
+            "visual.blocks.0.mlp.fc1.bias",
+            "visual.blocks.0.mlp.fc2.weight",
+            "visual.blocks.0.mlp.fc2.bias",
+        ]
+    )
     actual = vision_mlp(
         x,
         weights["visual.blocks.0.mlp.fc1.weight"],
